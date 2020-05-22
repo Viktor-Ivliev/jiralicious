@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Jiralicious, "Project Versions Class: " do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -11,42 +11,31 @@ describe Jiralicious, "Project Versions Class: " do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/version/",
-      status: "200",
-      body: version_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/version/10000",
-      status: "200",
-      body: version_json
-    )
-    FakeWeb.register_uri(
-      :delete,
-      "#{Jiralicious.rest_path}/version/10000",
-      status: "200",
-      body: nil
-    )
-    FakeWeb.register_uri(
-      :put,
-      "#{Jiralicious.rest_path}/version/10000",
-      status: "200",
-      body: version_updated_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/version/10000/relatedIssueCounts",
-      status: "200",
-      body: version_ric_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/version/10000/unresolvedIssueCount",
-      status: "200",
-      body: version_uic_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :post, "#{rest_path}/version/"
+    ).to_return(status: 200, body: version_json)
+
+    stub_request(
+      :get, "#{rest_path}/version/10000"
+    ).to_return(status: 200, body: version_json)
+
+    stub_request(
+      :delete, "#{rest_path}/version/10000"
+    ).to_return(status: 200, body: nil)
+
+    stub_request(
+      :put, "#{rest_path}/version/10000"
+    ).to_return(status: 200, body: version_updated_json)
+
+    stub_request(
+      :get, "#{rest_path}/version/10000/relatedIssueCounts"
+    ).to_return(status: 200, body: version_ric_json)
+
+    stub_request(
+      :get, "#{rest_path}/version/10000/unresolvedIssueCount"
+    ).to_return(status: 200, body: version_uic_json)
   end
 
   it "find a version" do

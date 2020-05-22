@@ -187,7 +187,7 @@ module Jiralicious
       # :transitions_url    (required)    full URL
       #
       def get_transitions(transitions_url)
-        Jiralicious.session.request(:get, transitions_url, handler: handler)
+        Jiralicious.session.request(:get, transitions_url, handler: handler).to_h
       end
 
       ##

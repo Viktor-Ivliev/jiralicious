@@ -12,20 +12,21 @@ Gem::Specification.new do |s|
   s.summary     = %(A Ruby library for interacting with JIRA's REST API)
   s.description = %(A Ruby library for interacting with JIRA's REST API)
   s.email       = "jstewart@fusionary.com"
-  s.authors     = ["Jason Stewart"]
+  s.authors     = ["Jason Stewart", "Viktor Ivliiev"]
 
-  s.add_runtime_dependency "crack", "~> 0.1.8"
-  s.add_runtime_dependency "hashie", ">= 1.1"
+  s.add_runtime_dependency "crack"
+  s.add_runtime_dependency "hashie"#, "~> 3.4.6" # 4.1.0
   s.add_runtime_dependency "httparty", ">= 0.10"
-  s.add_runtime_dependency "json", ">= 1.6"
+  s.add_runtime_dependency "json"
   s.add_runtime_dependency "oauth"
   s.add_runtime_dependency "nokogiri"
 
-  s.add_development_dependency "rspec", "~> 3.5"
-  s.add_development_dependency "fakeweb", "~> 1.3.0"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "webmock"
   s.add_development_dependency "pry"
   s.add_development_dependency "rake"
   s.add_development_dependency "rubocop"
+  s.add_development_dependency "pry-rails"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

@@ -11,35 +11,27 @@ describe Jiralicious, "search" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "201",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/10000",
-      status: "200",
-      body: comment_single_json
-    )
-    FakeWeb.register_uri(
-      :put,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/10000",
-      status: "200",
-      body: comment_single_json
-    )
-    FakeWeb.register_uri(
-      :delete,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/10000",
-      status: "204"
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :post, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 201, body: comment_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/10000"
+    ).to_return(status: 200, body: comment_single_json)
+
+    stub_request(
+      :put, "#{rest_path}/issue/EX-1/comment/10000"
+    ).to_return(status: 200, body: comment_single_json)
+
+    stub_request(
+      :delete, "#{rest_path}/issue/EX-1/comment/10000"
+    ).to_return(status: 204)
   end
 
   it "finds by issue key" do

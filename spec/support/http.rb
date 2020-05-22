@@ -13,11 +13,17 @@ module LoginHelper
         "previousLoginTime": "2011-07-25T06:31:07.556-0500"
       }
     })
-    FakeWeb.register_uri(
-      :post,
-      Jiralicious.uri + "/rest/auth/latest/session",
-      body: response
-    )
+
+
+    stub_request(:post, "#{Jiralicious.uri}/rest/auth/latest/session").to_return(body: response)
+    # WebMock.disable_net_connect!(:allow_localhost => false)
+    # WebMock.allow_net_connect!
+
+    # FakeWeb.register_uri(
+    #   :post,
+    #   Jiralicious.uri + "/rest/auth/latest/session",
+    #   body: response
+    # )
   end
 end
 
@@ -67,23 +73,23 @@ module JsonResponse
   end
 
   def projects_json
-    File.expand_path("projects.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("projects.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def project_json
-    File.expand_path("project.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("project.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def project_componets_json
-    File.expand_path("project_componets.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("project_componets.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def project_versions_json
-    File.expand_path("project_versions.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("project_versions.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def project_issue_list_json
-    File.expand_path("project_issue_list.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("project_issue_list.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def watchers_json
@@ -95,54 +101,54 @@ module JsonResponse
   end
 
   def user_json
-    File.expand_path("user.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("user.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def user_array_json
-    File.expand_path("user_array.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("user_array.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def user_picker_json
-    File.expand_path("user_picker.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("user_picker.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def avatar_list_json
-    File.expand_path("avatar_list.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("avatar_list.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def avatar_custom_json
-    File.expand_path("avatar_custom.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("avatar_custom.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def avatar_temp_json
-    File.expand_path("avatar_temp.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("avatar_temp.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def component_json
-    File.expand_path("component.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("component.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def component_updated_json
-    File.expand_path("component_updated.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("component_updated.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def component_ric_json
-    File.expand_path("component_ric.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("component_ric.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def version_json
-    File.expand_path("version.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("version.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def version_updated_json
-    File.expand_path("version_updated.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("version_updated.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def version_ric_json
-    File.expand_path("version_ric.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("version_ric.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 
   def version_uic_json
-    File.expand_path("version_uic.json", File.dirname(__FILE__) + "/../fixtures")
+    File.new(File.expand_path("version_uic.json", File.dirname(__FILE__) + "/../fixtures")).read
   end
 end

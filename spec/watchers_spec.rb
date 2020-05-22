@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Jiralicious, "search" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -11,22 +11,19 @@ describe Jiralicious, "search" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "204"
-    )
-    FakeWeb.register_uri(
-      :delete,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/?username=fred",
-      status: "204"
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
+
+    stub_request(
+      :post, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 204)
+
+    stub_request(
+      :delete,  "#{rest_path}/issue/EX-1/watchers/?username=fred"
+    ).to_return(status: 204)
   end
 
   it "finds by issue key" do

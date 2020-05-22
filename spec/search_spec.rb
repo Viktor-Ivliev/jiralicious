@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Jiralicious, "search" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -13,13 +13,10 @@ describe Jiralicious, "search" do
   end
 
   context "when successful" do
-    before :each do
-      FakeWeb.register_uri(
-        :post,
-        "#{Jiralicious.rest_path}/search",
-        status: "200",
-        body: search_json
-      )
+    before do
+      stub_request(
+        :post, "#{Jiralicious.rest_path.sub('jstewart:topsecret@', '')}/search"
+      ).to_return(status: 200, body: search_json)
     end
 
     it "instantiates a search result" do
@@ -29,13 +26,10 @@ describe Jiralicious, "search" do
   end
 
   context "When there's a problem with the query" do
-    before :each do
-      FakeWeb.register_uri(
-        :post,
-        "#{Jiralicious.rest_path}/search",
-        body: '{"errorMessages": ["error"]}',
-        status: "400"
-      )
+    before do
+      stub_request(
+        :post, "#{Jiralicious.rest_path.sub('jstewart:topsecret@', '')}/search"
+      ).to_return(status: 400, body: '{"errorMessages": ["error"]}')
     end
 
     it "raises an exception" do

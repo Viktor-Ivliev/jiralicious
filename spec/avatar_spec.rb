@@ -11,23 +11,19 @@ describe Jiralicious, "avatar" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/avatar/user/system",
-      status: "200",
-      body: avatar_list_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/avatar/user/temporary",
-      status: "200",
-      body: avatar_temp_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/avatar/user/temporaryCrop",
-      status: "200"
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/avatar/user/system"
+    ).to_return(status: 200, body: avatar_list_json)
+
+    stub_request(
+      :post, "#{rest_path}/avatar/user/temporary"
+    ).to_return(status: 200, body: avatar_temp_json)
+
+    stub_request(
+      :post, "#{rest_path}/avatar/user/temporaryCrop"
+    ).to_return(status: 200, body: avatar_temp_json)
   end
 
   it "obtain system avatar list" do

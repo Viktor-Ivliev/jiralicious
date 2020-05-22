@@ -114,16 +114,25 @@ module Jiralicious
       def fetch(options = {})
         options[:method] = :get unless [:get, :post, :put, :delete].include?(options[:method])
         options[:parent_uri] = "#{parent_name}/#{options[:parent_key]}/" unless options[:parent].nil?
+
         options[:body_uri] = if !options[:body_override]
                                options[:body].is_a?(Hash) ? options[:body] : { body: options[:body] }
                              else
                                options[:body]
                              end
+
         if options[:body_to_params]
-          options[:params_uri] = "?#{options[:body].to_params}" unless options[:body].nil? || options[:body].empty?
+          options[:params_uri] = "?#{Jiralicious::ParamsEncoder.encode(options[:body])}" unless options[:body].nil? || options[:body].empty?
           options[:body_uri] = nil
         end
-        options[:url_uri] = options[:url].nil? ? "#{Jiralicious.rest_path}/#{options[:parent_uri]}#{endpoint_name}/#{options[:key]}#{options[:params_uri]}" : "#{options[:url]}#{options[:params_uri]}"
+
+        options[:url_uri] =
+          if options[:url].nil?
+            "#{Jiralicious.rest_path}/#{options[:parent_uri]}#{endpoint_name}/#{options[:key]}#{options[:params_uri]}"
+          else
+            "#{options[:url]}#{options[:params_uri]}"
+          end
+
         Jiralicious.session.request(options[:method], options[:url_uri], handler: handler, body: options[:body_uri].to_json)
       end
 

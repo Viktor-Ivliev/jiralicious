@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Jiralicious, "Project Avatar" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -11,33 +11,31 @@ describe Jiralicious, "Project Avatar" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :put,
-      "#{Jiralicious.rest_path}/project/EX/avatar/",
-      status: "204"
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/project/EX/avatar/",
-      status: "200"
-    )
-    FakeWeb.register_uri(
-      :delete,
-      "#{Jiralicious.rest_path}/project/EX/avatar/10100",
-      status: "200"
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/EX/avatars/",
-      status: "200",
-      body: avatar_list_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/project/EX/avatar/temporary",
-      status: "200",
-      body: avatar_temp_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :put, "#{rest_path}/project/EX/avatar/"
+    ).to_return(status: 204)
+
+    stub_request(
+      :post, "#{rest_path}/project/EX/avatar/"
+    ).to_return(status: 200)
+
+    stub_request(
+      :delete, "#{rest_path}/project/EX/avatar/10100"
+    ).to_return(status: 200)
+
+    stub_request(
+      :get, "#{rest_path}/project/EX/avatars/"
+    ).to_return(status: 200, body: avatar_list_json)
+
+    stub_request(
+      :get, "#{rest_path}/project/EX/avatars/"
+    ).to_return(status: 200, body: avatar_list_json)
+
+    stub_request(
+      :post, "#{rest_path}/project/EX/avatar/temporary"
+    ).to_return(status: 200, body: avatar_temp_json)
   end
 
   it "obtain project avatar list" do

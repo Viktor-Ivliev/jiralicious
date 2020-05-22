@@ -6,41 +6,32 @@ describe Jiralicious::User, "finding" do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
-      config.uri = "http://jstewart:topsecret@localhost"
+      config.uri = "http://localhost"
       config.auth_type = :basic
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/user?username=test_user",
-      status: "200",
-      body: user_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/user/search?username=test_user",
-      status: "200",
-      body: user_array_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/user/assignable/multiProjectSearch?projectKeys=EX",
-      status: "200",
-      body: user_array_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/user/assignable/search?project=EX",
-      status: "200",
-      body: user_array_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/user/picker?query=user",
-      status: "200",
-      body: user_picker_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/user?username=test_user"
+    ).to_return(status: 200, body: user_json)
+
+    stub_request(
+      :get, "#{rest_path}/user/search?username=test_user"
+    ).to_return(status: 200, body: user_array_json)
+
+    stub_request(
+      :get, "#{rest_path}/user/assignable/multiProjectSearch?projectKeys=EX"
+    ).to_return(status: 200, body: user_array_json)
+
+    stub_request(
+      :get, "#{rest_path}/user/assignable/search?project=EX"
+    ).to_return(status: 200, body: user_array_json)
+
+    stub_request(
+      :get, "#{rest_path}/user/picker?query=user"
+    ).to_return(status: 200, body: user_picker_json)
   end
 
   it "by username" do

@@ -4,6 +4,7 @@ require "crack"
 require "httparty"
 require "json"
 
+require "jiralicious/tools/params_encoder"
 require "jiralicious/parsers/field_parser"
 require "jiralicious/errors"
 require "jiralicious/base"
@@ -28,6 +29,7 @@ require "jiralicious/cookie_session"
 require "jiralicious/oauth_session"
 require "jiralicious/configuration"
 require "jiralicious/avatar"
+
 
 ##
 # The Jiralicious module standard options and methods

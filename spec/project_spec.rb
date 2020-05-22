@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Jiralicious, "Project Management Class: " do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -11,42 +11,31 @@ describe Jiralicious, "Project Management Class: " do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/",
-      status: "200",
-      body: projects_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/EX",
-      status: "200",
-      body: project_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/EX/components",
-      status: "200",
-      body: project_componets_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/EX/versions",
-      status: "200",
-      body: project_versions_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/project/ABC",
-      status: "200",
-      body: project_json
-    )
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/search",
-      status: "200",
-      body: project_issue_list_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/project/"
+    ).to_return(status: 200, body: projects_json)
+
+    stub_request(
+      :get, "#{rest_path}/project/EX"
+    ).to_return(status: 200, body: project_json)
+
+    stub_request(
+      :get, "#{rest_path}/project/EX/components"
+    ).to_return(status: 200, body: project_componets_json)
+
+    stub_request(
+      :get, "#{rest_path}/project/EX/versions"
+    ).to_return(status: 200, body: project_versions_json)
+
+    stub_request(
+      :get, "#{rest_path}/project/ABC"
+    ).to_return(status: 200, body: project_json)
+
+    stub_request(
+      :post, "#{rest_path}/search"
+    ).to_return(status: 200, body: project_issue_list_json)
   end
 
   it "finds all projects" do

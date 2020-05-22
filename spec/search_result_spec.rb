@@ -2,25 +2,20 @@
 require "spec_helper"
 
 describe Jiralicious::SearchResult do
-  before :each do
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "200",
-      body: issue_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
+  before do
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 200, body: issue_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :get,"#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
   end
 
   let(:search_data) do

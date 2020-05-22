@@ -2,16 +2,12 @@
 require "spec_helper"
 
 describe "performing a request" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.uri = "http://jstewart:topsecret@localhost"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      Jiralicious.uri + "/ok",
-      status: "200"
-    )
+    stub_request(:get, "http://localhost/ok").to_return(status: 200)
   end
 
   let(:session) { Jiralicious::BasicSession.new }

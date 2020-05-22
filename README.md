@@ -40,6 +40,14 @@ Finding a single issue:
 
 Default auth type is now Basic auth. Cookie auth will be deprecated in the next version.
 
+## Changes in 0.7.0
+
+* Update 'crack'  0.1.8 to 0.4.3 and correction of errors that occurred after that
+* Froze the 'hashie' version on ~> 3.4.6
+* Moving from fakeweb to webmock
+* Fixes for deprecation errors
+
+
 ## Changes in 0.6.0
 * Now requires Ruby 2.X no longer supports ruby 1.x versions
 * Integrated Rubocop for syntax validation
@@ -92,6 +100,7 @@ Default auth type is now Basic auth. Cookie auth will be deprecated in the next 
 * Grant Ridder (shortdudey123)
 * Stephen Eckenrode (seckenrode)
 * Nikolay Vashchenko (NickolasVashchenko)
+* Viktor Ivliiev (Viktor(karl)Ivliiev)
 
 ## Contributing to jiralicious
 

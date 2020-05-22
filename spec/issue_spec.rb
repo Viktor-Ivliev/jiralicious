@@ -2,7 +2,9 @@
 require "spec_helper"
 
 describe Jiralicious::Issue, "finding" do
-  before :each do
+  let(:rest_path) { Jiralicious.rest_path.sub('jstewart:topsecret@', '') }
+
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -11,24 +13,17 @@ describe Jiralicious::Issue, "finding" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "200",
-      body: issue_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 200, body: issue_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
   end
 
   it "finds the issue by key" do
@@ -37,12 +32,13 @@ describe Jiralicious::Issue, "finding" do
 
   it "raises an exception when the issue can't be found or can't be viewed" do
     l = lambda do
-      FakeWeb.register_uri(
-        :get,
-        "#{Jiralicious.rest_path}/issue/EX-1",
+      stub_request(
+        :get, "#{rest_path}/issue/EX-1"
+      ).to_return(
         body: '{"errorMessages": ["error"]}',
         status: ["404 Not Found"]
       )
+
       Jiralicious::Issue.find("EX-1")
     end
     expect(l).to raise_error(Jiralicious::IssueNotFound)
@@ -58,7 +54,7 @@ end
 #################################################################################################################
 
 describe Jiralicious::Issue, "Managing Issues" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -67,71 +63,94 @@ describe Jiralicious::Issue, "Managing Issues" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/",
-      status: "200",
-      body: issue_create_json
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :post, "#{rest_path}/issue/"
+    ).to_return(status: 200, body: issue_create_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 200, body: issue_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-2"
+    ).to_return(status: 200, body: issue_2_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-2/comment/"
+    ).to_return(
+      status: 200,
+      body: '{ "startAt": 0, "maxResults": 0, "total": 0, "comments": [] }'
     )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "200",
-      body: issue_json
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-2/watchers/"
+    ).to_return(
+      status: 200,
+      body: '{
+        "self": "http://www.example.com/jira/rest/api/2/issue/EX-1/watchers",
+        "isWatching": false,
+        "watchCount": 1,
+        "watchers": [
+          {
+            "self": "http://www.example.com/jira/rest/api/2/user?username=fred",
+            "name": "fred",
+            "avatarUrls": {
+              "16x16": "http://www.example.com/jira/secure/useravatar?size=small&ownerId=fred",
+              "48x48": "http://www.example.com/jira/secure/useravatar?size=large&ownerId=fred"
+            },
+            "displayName": "Fred F. User",
+            "active": false
+          }
+        ]
+      }'
     )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-3"
+    ).to_return(status: 200, body: issue_3_json)
+
+    stub_request(
+      :put, "#{rest_path}/issue/EX-3"
+    ).to_return(status: 200, body: issue_update_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-3/comment/"
+    ).to_return(
+      status: 200,
+      body: '{ "startAt": 0, "maxResults": 0, "total": 0, "comments": [] }'
     )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-2",
-      status: "200",
-      body: issue_2_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-2/comment/",
-      status: "200",
-      body: '{"startAt": 0,"maxResults": 0,"total": 0,"comments": []}'
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-2/watchers/",
-      status: "200",
-      body: '{"self": "http://www.example.com/jira/rest/api/2/issue/EX-1/watchers","isWatching": false,"watchCount": 1,"watchers": [{"self": "http://www.example.com/jira/rest/api/2/user?username=fred","name": "fred","avatarUrls": {"16x16": "http://www.example.com/jira/secure/useravatar?size=small&ownerId=fred","48x48": "http://www.example.com/jira/secure/useravatar?size=large&ownerId=fred"},"displayName": "Fred F. User","active": false}]}'
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-3",
-      status: "200",
-      body: issue_3_json
-    )
-    FakeWeb.register_uri(
-      :put,
-      "#{Jiralicious.rest_path}/issue/EX-3",
-      status: "200",
-      body: issue_update_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-3/comment/",
-      status: "200",
-      body: '{"startAt": 0,"maxResults": 0,"total": 0,"comments": []}'
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-3/watchers/",
-      status: "200",
-      body: '{"self": "http://www.example.com/jira/rest/api/2/issue/EX-1/watchers","isWatching": false,"watchCount": 1,"watchers": [{"self": "http://www.example.com/jira/rest/api/2/user?username=fred","name": "fred","avatarUrls": {"16x16": "http://www.example.com/jira/secure/useravatar?size=small&ownerId=fred","48x48": "http://www.example.com/jira/secure/useravatar?size=large&ownerId=fred"},"displayName": "Fred F. User","active": false}]}'
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-3/watchers/"
+    ).to_return(
+      status: 200,
+      body: '{
+        "self": "http://www.example.com/jira/rest/api/2/issue/EX-1/watchers",
+        "isWatching": false,
+        "watchCount": 1,
+        "watchers": [
+          {
+            "self": "http://www.example.com/jira/rest/api/2/user?username=fred",
+            "name": "fred",
+            "avatarUrls": {
+              "16x16": "http://www.example.com/jira/secure/useravatar?size=small&ownerId=fred",
+              "48x48": "http://www.example.com/jira/secure/useravatar?size=large&ownerId=fred"
+            },
+            "displayName": "Fred F. User",
+            "active": false
+          }
+        ]
+      }'
     )
   end
 
@@ -255,34 +274,27 @@ describe Jiralicious::Issue, "Managing Issues" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "200",
-      body: issue_json
-    )
-    FakeWeb.register_uri(
-      :delete,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "204"
-    )
-    FakeWeb.register_uri(
-      :put,
-      "#{Jiralicious.rest_path}/issue/EX-1/assignee",
-      status: "204"
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 200, body: issue_json)
+
+    stub_request(
+      :delete, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 204)
+
+    stub_request(
+      :put, "#{rest_path}/issue/EX-1/assignee"
+    ).to_return(status: 204)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
   end
 
   it "update the assignee instance" do
@@ -320,36 +332,27 @@ describe Jiralicious::Issue, "Issue Information and Field Class" do
       config.api_version = "latest"
     end
 
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/createmeta?projectKeys=EX&expand=projects.issuetypes.fields.&issuetypeIds=",
-      status: "200",
-      body: issue_createmeta_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/editmeta",
-      status: "200",
-      body: issue_editmeta_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1",
-      status: "200",
-      body: issue_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/comment/",
-      status: "200",
-      body: comment_json
-    )
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/watchers/",
-      status: "200",
-      body: watchers_json
-    )
+    rest_path = Jiralicious.rest_path.sub('jstewart:topsecret@', '')
+
+    stub_request(
+      :get, "#{rest_path}/issue/createmeta?projectKeys=EX&expand=projects.issuetypes.fields.&issuetypeIds="
+    ).to_return(status: 200, body: issue_createmeta_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/editmeta"
+    ).to_return(status: 200, body: issue_editmeta_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1"
+    ).to_return(status: 200, body: issue_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/comment/"
+    ).to_return(status: 200, body: comment_json)
+
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/watchers/"
+    ).to_return(status: 200, body: watchers_json)
   end
 
   it "retrieve createmeta for project class level" do
@@ -385,7 +388,7 @@ end
 #################################################################################################################
 
 describe Jiralicious::Issue, "transitions" do
-  before :each do
+  before do
     Jiralicious.configure do |config|
       config.username = "jstewart"
       config.password = "topsecret"
@@ -395,40 +398,38 @@ describe Jiralicious::Issue, "transitions" do
     end
   end
 
+  let(:rest_path) { Jiralicious.rest_path.sub('jstewart:topsecret@', '') }
+
   it "returns list of possible transitions" do
-    FakeWeb.register_uri(
-      :get,
-      "#{Jiralicious.rest_path}/issue/EX-1/transitions",
-      status: "200",
-      body: transitions_json
-    )
+    stub_request(
+      :get, "#{rest_path}/issue/EX-1/transitions"
+    ).to_return(status: 200, body: transitions_json)
 
     transitions = Jiralicious::Issue.get_transitions("#{Jiralicious.rest_path}/issue/EX-1/transitions")
     expect(transitions).to be_instance_of(Hash)
   end
 
   it "performs transition" do
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/EX-1/transitions",
-      status: "204",
-      body: nil
-    )
+    stub_request(
+      :post, "#{rest_path}/issue/EX-1/transitions"
+    ).to_return(status: 204, body: nil)
 
     result = Jiralicious::Issue.transition(
       "#{Jiralicious.rest_path}/issue/EX-1/transitions",
       "transition" => "3", "fields" => []
     )
-    expect(result).to be_nil
+
+    expect(result.body).to be_nil
   end
 
   it "raises an exception on transition failure" do
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/EX-1/transitions",
-      status: "400",
-      body: '{"errorMessages":["Workflow operation is not valid"],"errors":{}}'
+    stub_request(
+      :post, "#{rest_path}/issue/EX-1/transitions"
+    ).to_return(
+      status: 400,
+      body: '{ "errorMessages": ["Workflow operation is not valid"], "errors": {} }'
     )
+
     l = lambda do
       Jiralicious::Issue.transition(
         "#{Jiralicious.rest_path}/issue/EX-1/transitions",
@@ -439,12 +440,13 @@ describe Jiralicious::Issue, "transitions" do
   end
 
   it "raises an IssueNotFound exception if issue is not found" do
-    FakeWeb.register_uri(
-      :post,
-      "#{Jiralicious.rest_path}/issue/EX-1/transitions",
-      status: "404",
-      body: '{"errorMessages":["Issue Does Not Exist"],"errors":{}}'
+    stub_request(
+      :post, "#{rest_path}/issue/EX-1/transitions"
+    ).to_return(
+      status: 404,
+      body: '{ "errorMessages": ["Issue Does Not Exist"], "errors": {} }'
     )
+
     l = lambda do
       Jiralicious::Issue.transition(
         "#{Jiralicious.rest_path}/issue/EX-1/transitions",

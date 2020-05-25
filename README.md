@@ -43,7 +43,7 @@ Default auth type is now Basic auth. Cookie auth will be deprecated in the next 
 ## Changes in 0.7.0
 
 * Update 'crack'  0.1.8 to 0.4.3 and correction of errors that occurred after that
-* Froze the 'hashie' version on ~> 3.4.6
+* Froze the 'hashie' version on >= 3.4.6 (I recommend using 3.4.6 because with higher versions we get minor artifacts for deep nesting data)
 * Moving from fakeweb to webmock
 * Fixes for deprecation errors
 
